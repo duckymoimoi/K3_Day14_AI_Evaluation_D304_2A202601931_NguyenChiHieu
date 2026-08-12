@@ -44,12 +44,14 @@ Câu chuyển: “Nhìn aggregate, retriever khá tốt; bottleneck chính có v
 
 ### 5. Failure map — 35 giây
 
-Phân biệt:
+Nói rõ benchmark có **4 failed cases**, không phải ba:
 
-- A02 là safe refusal nhưng lexical metrics chấm zero.
-- M02 là misinformation thật về tuition và scholarship.
+- A01: emergency response an toàn nhưng bị gắn hallucination.
+- A02: safe refusal nhưng lexical metrics chấm zero.
+- M02: misinformation thật về tuition và scholarship.
+- A03: answer đúng privacy policy nhưng fail ở metric boundary.
 
-Trình bày A01 và A02 trước để chứng minh evaluator cũng có thể sai; sau đó mới mở trace sâu M02.
+Chúng em chọn phân tích sâu **3/4 cases**: A01, A02 và M02. A03 vẫn được báo cáo đầy đủ nhưng không mở 5 Whys vì failure pattern gần A01/A02 và ít giá trị bổ sung hơn. Trình bày A01/A02 trước để chứng minh evaluator cũng có thể sai; sau đó mới mở trace sâu M02.
 
 ### 6. A01 — Question, answers và 5 Whys — 55 giây
 

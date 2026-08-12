@@ -4,7 +4,7 @@ const notes = [
   "Đi theo 6 bước. Corpus được paragraph-chunk; BM25 có source-repeat decay lấy top 5; GPT-OSS sinh answer đúng một lần; JSON đóng băng answer và ranked chunks. Từ artifact, evaluator tính lại 5 metrics mà không gọi Groq. Pass chỉ xét Faithfulness, Relevance, Completeness đều từ 0.5; Recall/Precision dùng chẩn đoán retrieval.",
   "Giải thích difficulty bằng yêu cầu suy luận, không phải độ dài câu hỏi. Dataset phủ đủ 10 tài liệu và bốn mức khó.",
   "Đọc retrieval trước rồi mới đọc answer-side. Retriever nhìn chung tốt, nhưng aggregate có thể che một lỗi nghiêm trọng.",
-  "Phân biệt A02 là false negative của metric, còn M02 là misinformation thật về tiền và học bổng. Vì vậy chọn M02 để điều tra.",
+  "Benchmark có đúng 4 failed cases: A01, A02, M02 và A03. Phần sau phân tích 3/4: A01 và A02 đại diện evaluator failure, M02 đại diện misinformation thật. A03 được giữ trên map nhưng không mở 5 Whys vì cùng nhóm metric mismatch và ít bổ sung hơn.",
   "A01: đọc nhanh ba ô Question, Expected, Actual trước. Actual làm đúng hành vi khẩn cấp nhưng thiếu một phần wording như campus security; đi qua 5 Whys để chỉ ra đây chủ yếu là evaluator failure.",
   "A02: đối chiếu gold liệt kê rõ ba thứ phải bảo vệ với actual chỉ có một câu refusal. Hành vi đúng nhưng lexical overlap bằng 0; root cause là evaluator chưa đo policy compliance.",
   "Đọc nguyên câu hỏi M02 và báo hiệu chuyển sang deep dive. Tách hai sub-question: tuition reversal và scholarship consequence; September 2 nằm sau add/drop nhưng trước census.",
