@@ -114,6 +114,10 @@ Root cause cần nhấn mạnh:
 
 Câu kết: “Ba case cho thấy benchmark phải phân biệt model failure với evaluator failure. A01 và A02 chủ yếu là evaluator failure; M02 là failure thật của hệ thống trả lời.”
 
+### 13. Full benchmark appendix — dùng khi Q&A
+
+Không cần trình bày từng dòng. Slide cuối chứa đủ 20 cases với Context Recall, Context Precision, Faithfulness, Relevance, Completeness, Overall và kết quả. Cuộn trực tiếp trong bảng khi giảng viên hỏi một case cụ thể. Hàng đỏ là bốn failures; hàng vàng là ba weak passes có overall dưới 0.65.
+
 ## Câu hỏi có thể bị hỏi
 
 **Tại sao A02 hành vi đúng mà score bằng zero?**

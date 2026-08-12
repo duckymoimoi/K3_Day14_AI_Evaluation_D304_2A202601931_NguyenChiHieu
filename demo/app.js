@@ -12,6 +12,7 @@ const notes = [
   "So từng claim expected và actual. Model đúng mốc thời gian, nhưng sai khi biến USD 420/credit thành full refund và biến review thành immediate loss.",
   "Đọc top-5 retrieval. Rank 1 và 2 cung cấp hai phần đúng; rank 3 chỉ là tuition price. Paragraph quyết định 50% không xuất hiện.",
   "M02 khác A01 và A02: đây là model failure thật. Nối 5 Whys từ unsupported conclusions, qua missing refund evidence, đến root cause ở retrieval decomposition và grounding gate.",
+  "Đây là appendix để dùng khi Q&A, không cần đọc từng dòng. Bảng có đủ 20 cases và năm metrics; cuộn bằng mouse hoặc trackpad. Hàng đỏ là bốn failures, hàng vàng là weak passes có overall dưới 0.65.",
 ];
 
 const currentLabel = document.querySelector("#current");
@@ -54,6 +55,11 @@ document.querySelector("#notes-toggle").addEventListener("click", toggleNotes);
 document.querySelector("#fullscreen").addEventListener("click", toggleFullscreen);
 
 document.addEventListener("keydown", (event) => {
+  if (document.activeElement?.classList.contains("benchmark-scroll") && ["ArrowUp", "ArrowDown"].includes(event.key)) {
+    event.preventDefault();
+    document.activeElement.scrollBy({ top: event.key === "ArrowDown" ? 55 : -55, behavior: "smooth" });
+    return;
+  }
   if (["ArrowRight", "PageDown", " "].includes(event.key)) { event.preventDefault(); showSlide(current + 1); }
   if (["ArrowLeft", "PageUp"].includes(event.key)) { event.preventDefault(); showSlide(current - 1); }
   if (event.key === "Home") showSlide(0);

@@ -209,6 +209,39 @@
             <article class="root"><b>5</b><div><strong>Root cause</strong><span>Thiếu query decomposition, source routing và claim-level evidence gate.</span></div></article>
           </div>
         </section>
+
+        <section class="slide benchmark-table-slide" data-title="20-case benchmark" data-time="Appendix · Q&amp;A">
+          <p class="kicker">12 · Full benchmark appendix</p>
+          <div class="appendix-heading"><h2>Toàn bộ 20 cases và metrics</h2><div><span class="legend-pass">PASS · 13</span><span class="legend-weak">WEAK PASS · 3</span><span class="legend-fail">FAIL · 4</span></div></div>
+          <p class="table-hint">Cuộn trong bảng để xem đủ 20 cases · F/R/C quyết định pass · CR/CP dùng chẩn đoán retrieval.</p>
+          <div class="benchmark-scroll" tabindex="0" aria-label="Bảng kết quả benchmark 20 cases, có thể cuộn dọc">
+            <table class="benchmark-table">
+              <thead><tr><th>Case</th><th>Difficulty</th><th>Ctx Recall</th><th>Ctx Precision</th><th>Faithfulness</th><th>Relevance</th><th>Completeness</th><th>Overall</th><th>Result</th></tr></thead>
+              <tbody>
+                <tr class="case-pass"><td><b>E01</b></td><td>easy</td><td>1.000</td><td>1.000</td><td>1.000</td><td>0.857</td><td>1.000</td><td><b>0.952</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>E02</b></td><td>easy</td><td>1.000</td><td>1.000</td><td>0.889</td><td>0.857</td><td>1.000</td><td><b>0.915</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>E03</b></td><td>easy</td><td>1.000</td><td>1.000</td><td>1.000</td><td>0.778</td><td>1.000</td><td><b>0.926</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>E04</b></td><td>easy</td><td>1.000</td><td>1.000</td><td>1.000</td><td>0.500</td><td>1.000</td><td><b>0.833</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>E05</b></td><td>easy</td><td>0.909</td><td>1.000</td><td>0.909</td><td>0.714</td><td>1.000</td><td><b>0.874</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>M01</b></td><td>medium</td><td>0.914</td><td>1.000</td><td>0.709</td><td>0.722</td><td>0.886</td><td><b>0.772</b></td><td>PASS</td></tr>
+                <tr class="case-fail"><td><b>M02</b></td><td>medium</td><td>0.808</td><td>0.887</td><td>0.489</td><td>0.600</td><td>0.654</td><td><b>0.581</b></td><td>FAIL</td></tr>
+                <tr class="case-pass"><td><b>M03</b></td><td>medium</td><td>0.943</td><td>0.806</td><td>0.708</td><td>0.727</td><td>0.857</td><td><b>0.764</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>M04</b></td><td>medium</td><td>0.897</td><td>0.950</td><td>0.615</td><td>0.765</td><td>0.724</td><td><b>0.701</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>M05</b></td><td>medium</td><td>0.949</td><td>1.000</td><td>0.816</td><td>0.769</td><td>0.821</td><td><b>0.802</b></td><td>PASS</td></tr>
+                <tr class="case-weak"><td><b>M06</b></td><td>medium</td><td>0.966</td><td>1.000</td><td>0.510</td><td>0.545</td><td>0.724</td><td><b>0.593</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>M07</b></td><td>medium</td><td>1.000</td><td>1.000</td><td>0.833</td><td>0.857</td><td>0.792</td><td><b>0.827</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>H01</b></td><td>hard</td><td>0.810</td><td>1.000</td><td>0.700</td><td>0.714</td><td>0.786</td><td><b>0.733</b></td><td>PASS</td></tr>
+                <tr class="case-weak"><td><b>H02</b></td><td>hard</td><td>0.800</td><td>0.950</td><td>0.524</td><td>0.722</td><td>0.567</td><td><b>0.604</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>H03</b></td><td>hard</td><td>0.816</td><td>1.000</td><td>0.667</td><td>0.778</td><td>0.837</td><td><b>0.760</b></td><td>PASS</td></tr>
+                <tr class="case-weak"><td><b>H04</b></td><td>hard</td><td>1.000</td><td>1.000</td><td>0.515</td><td>0.611</td><td>0.500</td><td><b>0.542</b></td><td>PASS</td></tr>
+                <tr class="case-pass"><td><b>H05</b></td><td>hard</td><td>0.889</td><td>0.887</td><td>0.640</td><td>0.737</td><td>0.833</td><td><b>0.737</b></td><td>PASS</td></tr>
+                <tr class="case-fail"><td><b>A01</b></td><td>adversarial</td><td>0.692</td><td>0.804</td><td>0.286</td><td>0.412</td><td>0.269</td><td><b>0.322</b></td><td>FAIL</td></tr>
+                <tr class="case-fail"><td><b>A02</b></td><td>adversarial</td><td>0.950</td><td>1.000</td><td>0.000</td><td>0.000</td><td>0.000</td><td><b>0.000</b></td><td>FAIL</td></tr>
+                <tr class="case-fail"><td><b>A03</b></td><td>adversarial</td><td>0.846</td><td>1.000</td><td>0.857</td><td>0.438</td><td>0.769</td><td><b>0.688</b></td><td>FAIL</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
 
       <footer class="deck-footer">
