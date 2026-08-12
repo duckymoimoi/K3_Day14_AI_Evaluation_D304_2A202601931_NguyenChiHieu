@@ -1,14 +1,17 @@
 const slides = [...document.querySelectorAll(".slide")];
 const notes = [
-  "Mở bằng outcome: đây không phải demo chatbot, mà là cách biết chatbot sai ở retrieval, generation hay evaluator. Nói pass rate 80% nhưng chưa vội kết luận tốt/xấu.",
-  "Đi từ trái sang phải. Nhấn mạnh system under evaluation và evaluation engine là hai phần khác nhau. Artifact ở giữa giúp chạy lại evaluator mà không gọi Groq thêm lần nữa.",
-  "Giải thích difficulty bằng reasoning requirement, không phải độ dài câu hỏi. Lấy E03, H03 và A02 làm ví dụ nếu lớp hỏi.",
-  "Đọc hai metric retrieval trước rồi so với answer-side. Câu chốt: retriever nhìn chung lấy đúng tài liệu, nhưng model vẫn có thể suy luận quá mức hoặc evaluator chấm sai safe refusal.",
-  "Phân biệt failure thật và metric false negative. Chọn M02 vì nó tạo misinformation về tiền và scholarship, có tác động thật và trace đủ rõ cho 5 Whys.",
-  "Đọc expected và actual thật chậm. Chỉ vào rank #3: model thấy USD 420 nhưng thiếu paragraph nói 50%, rồi tự biến price thành refund. Đây là bằng chứng trực tiếp, không phải phỏng đoán từ score.",
-  "Mỗi Why phải nối nhân quả với Why trước. Root cause cuối phải sửa được bằng code hoặc pipeline: decomposition, routing, grounding gate — không dừng ở câu chung chung 'model hallucinated'.",
-  "Nêu một metric và cách verify cho mỗi fix. Regression gate 0.05 là aggregate gate; privacy, emergency và invented financial claims cần zero-tolerance case gate.",
-  "Live demo chỉ chạy test, validator và evaluator từ artifact. Không gọi domain_assistant.py trên sân khấu vì network/quota không phải nội dung cần chứng minh. Kết thúc bằng ba takeaway rồi mở Q&A.",
+  "Mở bằng outcome: đây không phải demo chatbot, mà là cách biết chatbot sai ở retrieval, generation hay evaluator. Pass rate 80% chưa đủ để kết luận hệ thống an toàn.",
+  "Đi từ trái sang phải. Nhấn mạnh system under evaluation và evaluation engine là hai phần khác nhau; artifact giúp chạy lại evaluator mà không gọi Groq.",
+  "Giải thích difficulty bằng yêu cầu suy luận, không phải độ dài câu hỏi. Dataset phủ đủ 10 tài liệu và bốn mức khó.",
+  "Đọc retrieval trước rồi mới đọc answer-side. Retriever nhìn chung tốt, nhưng aggregate có thể che một lỗi nghiêm trọng.",
+  "Phân biệt A02 là false negative của metric, còn M02 là misinformation thật về tiền và học bổng. Vì vậy chọn M02 để điều tra.",
+  "Đọc nguyên câu hỏi M02. Tách thành hai sub-question độc lập: tuition reversal và scholarship consequence. Chỉ vào timeline: September 2 nằm sau add/drop nhưng trước census.",
+  "Ghép lần lượt ba policy. Calendar xác định khoảng thời gian; Tuition Refund cho kết luận 50%; Scholarship chỉ yêu cầu immediate eligibility review. Không policy nào nói mất học bổng ngay.",
+  "So từng claim expected và actual. Model đúng mốc thời gian, nhưng sai khi biến USD 420/credit thành full refund và biến review thành immediate loss.",
+  "Đọc top-5 retrieval. Rank 1 và 2 cung cấp hai phần đúng; rank 3 chỉ là tuition price. Paragraph quyết định 50% không xuất hiện, nên context đủ gần về từ khóa nhưng thiếu đúng rule cần dùng.",
+  "Mỗi Why phải nối nhân quả với Why trước. Root cause có thể sửa được là thiếu query decomposition, source routing và claim-level grounding gate.",
+  "Nêu metric kiểm chứng cho từng fix. Critical financial misinformation phải dùng zero-tolerance case gate, không chỉ aggregate threshold.",
+  "Live demo chỉ chạy test, validator và evaluator từ artifact. Không cần gọi lại Groq hay RAGAS; kết thúc bằng ba takeaway rồi mở Q&A.",
 ];
 
 const currentLabel = document.querySelector("#current");
@@ -33,7 +36,7 @@ function showSlide(index) {
   progress.style.width = `${((current + 1) / slides.length) * 100}%`;
   title.textContent = slides[current].dataset.title;
   slideTime.textContent = slides[current].dataset.time;
-  noteText.textContent = notes[current];
+  noteText.textContent = notes[current] ?? "";
   prev.disabled = current === 0;
   next.disabled = current === slides.length - 1;
   history.replaceState(null, "", `#${current + 1}`);

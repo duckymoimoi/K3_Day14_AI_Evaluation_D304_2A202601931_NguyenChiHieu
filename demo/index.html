@@ -104,33 +104,69 @@
           <div class="callout"><strong>Case chọn cho 5 Whys: M02</strong><span>Đây là failure có tác động thật đến tài chính và học bổng, không chỉ là false negative của evaluator.</span></div>
         </section>
 
-        <section class="slide trace-slide" data-title="M02 trace" data-time="3:30–4:35">
-          <p class="kicker">05 · M02 evidence trace</p>
-          <h2>Một paragraph bị thiếu dẫn đến hai kết luận sai</h2>
-          <p class="question">“Drop môn ngày 02/09 và xuống dưới 12 credits: tuition reversal và scholarship consequence là gì?”</p>
-          <div class="trace-grid">
-            <article class="trace-card expected">
-              <span class="trace-label">Expected</span>
-              <p><mark>50%</mark> tuition reversed · Immediate <mark>eligibility review</mark></p>
-              <small>Evidence cần: calendar + refund window + scholarship review</small>
-            </article>
-            <article class="trace-card actual">
-              <span class="trace-label">Actual</span>
-              <p><del>Full USD 420 refunded</del> · <del>Scholarship lost immediately</del></p>
-              <small>Hai material claims không được evidence hỗ trợ</small>
-            </article>
+        <section class="slide m02-context-slide" data-title="M02 · Bối cảnh" data-time="3:30–4:15">
+          <p class="kicker">05 · M02 case context</p>
+          <h2>Trước hết: câu hỏi đang kiểm tra điều gì?</h2>
+          <blockquote class="full-question">“A Fall 2026 scholarship recipient drops a course on <mark>September 2</mark> and falls below <mark>12 graded credits</mark>. What tuition reversal and scholarship consequence should the student expect?”</blockquote>
+          <div class="timeline-policy">
+            <div class="date-node"><b>Aug 28 · 17:00</b><span>Standard add/drop ends</span></div>
+            <div class="date-line active"><span>50% tuition reversal window</span></div>
+            <div class="date-node event"><b>Sep 2</b><span>Student drops course</span><em>Event cần đánh giá</em></div>
+            <div class="date-line active"></div>
+            <div class="date-node"><b>Sep 4</b><span>Census date</span></div>
           </div>
-          <div class="ranked-trace">
-            <div class="rank ok"><b>#1</b><span>Calendar</span><small>Đúng August 28 / September 4</small></div>
-            <div class="rank ok"><b>#2</b><span>Scholarship</span><small>Đúng: immediate eligibility review</small></div>
-            <div class="rank partial"><b>#3</b><span>Tuition price</span><small>USD 420/credit, nhưng không có refund rule</small></div>
-            <div class="rank missing"><b>Ø</b><span>Refund paragraph</span><small>50% reversal bị thiếu khỏi top-k</small></div>
+          <div class="question-parts">
+            <article><b>A</b><div><strong>Tuition</strong><span>Sep 2 nằm ở refund window nào?</span></div></article>
+            <article><b>B</b><div><strong>Scholarship</strong><span>Xuống dưới 12 graded credits trước census gây ra điều gì?</span></div></article>
           </div>
-          <div class="score-line"><span>Ctx Recall <b>0.808</b></span><span>Faithfulness <b>0.489</b></span><span>Overall <b>0.581</b></span></div>
+          <div class="callout"><strong>Không hỏi tuition price</strong><span>Câu hỏi hỏi tỷ lệ reversal và quy trình scholarship, không hỏi học phí mỗi credit.</span></div>
         </section>
 
-        <section class="slide whys-slide" data-title="5 Whys" data-time="4:35–5:45">
-          <p class="kicker">06 · Root cause analysis</p>
+        <section class="slide evidence-slide" data-title="M02 · Ba policy" data-time="4:15–5:15">
+          <p class="kicker">06 · M02 gold evidence</p>
+          <h2>Đáp án đúng cần ghép ba policy documents</h2>
+          <div class="policy-docs">
+            <article><header><b>01</b><div><strong>Academic Calendar</strong><code>01_academic_calendar.md</code></div></header><p>“Standard add/drop period ends at <mark>17:00 on August 28</mark>. The <mark>census date is September 4</mark>.”</p><footer>Vai trò: xác định vị trí của Sep 2 trên timeline.</footer></article>
+            <article class="critical"><header><b>03</b><div><strong>Tuition &amp; Refunds</strong><code>03_tuition_payment_refund.md</code></div></header><p>“From the day after standard add/drop through the census date, <mark>50% is reversed</mark>.”</p><footer>Vai trò: trả lời chính xác tuition reversal.</footer></article>
+            <article><header><b>04</b><div><strong>Scholarships</strong><code>04_scholarships.md</code></div></header><p>“Dropping below 12 graded credits on or before census triggers an <mark>immediate eligibility review</mark>.”</p><footer>Vai trò: review, chưa phải immediate loss.</footer></article>
+          </div>
+          <div class="expected-formula"><span>Sep 2 ∈ (Aug 28, Sep 4]</span><i>→</i><strong>50% reversed</strong><span>+ below 12 credits before census</span><i>→</i><strong>eligibility review</strong></div>
+        </section>
+
+        <section class="slide answer-audit-slide" data-title="M02 · Answer audit" data-time="5:15–6:10">
+          <p class="kicker">07 · Expected vs actual</p>
+          <h2>Actual answer đúng bối cảnh, nhưng sai hai kết luận</h2>
+          <div class="answer-audit">
+            <article class="expected-answer"><header>Expected answer</header><p>“September 2 is after standard add/drop and before the September 4 census date, so <mark>50% of that course's tuition is reversed</mark>. Falling below 12 graded credits on or before census triggers an <mark>immediate scholarship eligibility review</mark>.”</p></article>
+            <article class="actual-answer"><header>Actual answer · GPT-OSS 120B</header><p>“The tuition for the dropped credit (USD $420) will be <del>refunded</del> … The student will <del>lose eligibility for the scholarship for the current term</del>.”</p></article>
+          </div>
+          <table class="claim-audit">
+            <thead><tr><th>Claim</th><th>Gold policy</th><th>Actual</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr><td>Drop date</td><td>Sep 2 before Sep 4 census</td><td>Recognized correctly</td><td><span class="verdict good-v">Supported</span></td></tr>
+              <tr><td>Tuition</td><td>50% reversed</td><td>Full USD 420 refunded</td><td><span class="verdict bad-v">Invented</span></td></tr>
+              <tr><td>Scholarship</td><td>Eligibility review</td><td>Immediate loss</td><td><span class="verdict bad-v">Overclaimed</span></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="slide trace-slide" data-title="M02 · Retrieval gap" data-time="6:10–7:05">
+          <p class="kicker">08 · Retrieved evidence</p>
+          <h2>Retriever lấy đúng 2/3 mảnh ghép</h2>
+          <p class="lead compact-lead">Top-5 có calendar và scholarship rule, nhưng paragraph quy định 50% refund không xuất hiện.</p>
+          <div class="retrieval-list">
+            <article class="retrieved-good"><b>#1 · 14.705</b><div><strong>01 Academic Calendar · P01</strong><p>Aug 28 add/drop deadline · Sep 4 census date</p></div><span>Useful</span></article>
+            <article class="retrieved-good"><b>#2 · 12.256</b><div><strong>04 Scholarships · P04</strong><p>Below 12 credits → immediate eligibility review</p></div><span>Useful</span></article>
+            <article class="retrieved-wrong"><b>#3 · 9.383</b><div><strong>03 Tuition · P01</strong><p>USD 420 per credit + USD 180 service fee</p></div><span>Distractor</span></article>
+            <article><b>#4 · 9.185</b><div><strong>04 Scholarships · P02</strong><p>Renewal GPA and credit requirements</p></div><span>Background</span></article>
+            <article><b>#5 · 8.238</b><div><strong>01 Academic Calendar · P04</strong><p>Census affects billing and scholarship status</p></div><span>Background</span></article>
+            <article class="not-retrieved"><b>Missing</b><div><strong>03 Tuition · refund paragraph</strong><p>After add/drop through census → 50% reversed</p></div><span>Gold evidence</span></article>
+          </div>
+          <div class="score-line"><span>Ctx Recall <b>0.808</b></span><span>Ctx Precision <b>0.887</b></span><span>Faithfulness <b>0.489</b></span><span>Overall <b>0.581</b></span></div>
+        </section>
+
+        <section class="slide whys-slide" data-title="5 Whys" data-time="7:05–8:10">
+          <p class="kicker">09 · Root cause analysis</p>
           <h2>M02 qua 5 Whys</h2>
           <div class="whys">
             <article><b>1</b><div><strong>Vì sao answer sai?</strong><span>Model kết luận full refund và mất scholarship ngay.</span></div></article>
@@ -141,8 +177,8 @@
           </div>
         </section>
 
-        <section class="slide" data-title="Cải tiến" data-time="5:45–6:30">
-          <p class="kicker">07 · Improve &amp; regress</p>
+        <section class="slide" data-title="Cải tiến" data-time="8:10–8:55">
+          <p class="kicker">10 · Improve &amp; regress</p>
           <h2>Fix theo root cause, rồi khóa bằng regression gate</h2>
           <div class="improvement-grid">
             <article><span>01</span><strong>Decompose query</strong><p>Tách calendar, refund và scholarship; merge candidates với source diversity.</p><em>↑ Context Recall</em></article>
@@ -152,8 +188,8 @@
           <div class="gate-flow"><span>Change</span><i>→</i><span>Offline eval</span><i>→</i><span>Regression ≤ 0.05</span><i>→</i><span>Critical-case gate</span><i>→</i><strong>Deploy</strong></div>
         </section>
 
-        <section class="slide closing-slide" data-title="Live proof" data-time="6:30–7:20">
-          <p class="kicker">08 · Live proof &amp; takeaway</p>
+        <section class="slide closing-slide" data-title="Live proof" data-time="8:55–9:40">
+          <p class="kicker">11 · Live proof &amp; takeaway</p>
           <h2>Demo artifact, không đánh cược vào live API</h2>
           <div class="closing-grid">
             <div class="terminal" aria-label="Live demo commands">

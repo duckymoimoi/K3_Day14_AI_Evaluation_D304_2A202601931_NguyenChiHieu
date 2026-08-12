@@ -1,4 +1,4 @@
-# Kịch bản demo AI Evaluation (6–8 phút)
+# Kịch bản demo AI Evaluation (9–10 phút)
 
 ## Chuẩn bị trước giờ trình bày
 
@@ -45,28 +45,48 @@ Phân biệt:
 
 Chọn M02 cho 5 Whys vì có tác động thật và root cause có evidence rõ.
 
-### 6. M02 evidence trace — 65 giây
+### 6. M02 — bối cảnh câu hỏi — 45 giây
+
+Đọc nguyên văn câu hỏi và tách thành hai nhánh cần trả lời độc lập:
+
+- Tuition reversal là bao nhiêu?
+- Scholarship consequence là gì?
+
+Chỉ vào timeline: add/drop kết thúc August 28, sinh viên drop September 2, census là September 4. Vì vậy September 2 nằm trong khoảng “sau add/drop, đến census”.
+
+### 7. M02 — ba tài liệu gold — 60 giây
+
+Ghép ba rule theo thứ tự:
+
+1. Academic Calendar xác định vị trí của September 2.
+2. Tuition & Refunds quy định trong khoảng đó thì **50% course tuition is reversed**.
+3. Scholarships quy định dưới 12 graded credits trước census thì **immediate eligibility review**.
+
+Nhấn mạnh: “eligibility review” không đồng nghĩa “lose eligibility”.
+
+### 8. M02 — expected vs actual — 55 giây
 
 Expected: 50% tuition reversal và eligibility review.
 
 Actual: full USD 420 refunded và mất scholarship ngay.
 
-Chỉ retrieval trace:
+So theo từng claim: model nhận đúng mốc thời gian, nhưng tuition claim là invented và scholarship claim là overclaimed.
 
-- Rank 1 có calendar.
-- Rank 2 có scholarship review.
-- Rank 3 chỉ có tuition price.
-- Paragraph chứa 50% refund bị thiếu.
+### 9. M02 — retrieval gap — 55 giây
 
-Kết luận: model dùng USD 420 price để tự suy luận thành full refund, rồi diễn giải review thành loss.
+- Rank 1 có calendar và rank 2 có scholarship review.
+- Rank 3 chỉ nói tuition price là USD 420/credit; đây không phải refund rule.
+- Paragraph chứa rule 50% không nằm trong top 5.
 
-### 7. 5 Whys — 70 giây
+Kết luận: retriever lấy được 2/3 mảnh ghép. Model dùng con số USD 420 gần nghĩa để tự suy luận thành full refund, rồi diễn giải review thành loss.
+
+### 10. 5 Whys — 65 giây
 
 Đọc chuỗi 5 Whys trên slide. Nhấn mạnh root cause cuối không phải “model hallucinated”, mà là:
 
 > Thiếu query decomposition, source routing và claim-level evidence gate.
 
-### 8. Improvement và regression — 45 giây
+### 11. Improvement và regression — 45 giây
 
 Nêu ba fix và metric dự kiến:
 
@@ -76,7 +96,7 @@ Nêu ba fix và metric dự kiến:
 
 Aggregate regression threshold là 0.05, nhưng privacy, emergency và financial misinformation dùng zero-tolerance case gate.
 
-### 9. Live proof và kết luận — 50 giây
+### 12. Live proof và kết luận — 45 giây
 
 Chuyển sang PowerShell và chạy:
 
