@@ -5,8 +5,7 @@
 1. Mở `demo/index.html` bằng Chrome hoặc Edge.
 2. Nhấn `F` để trình chiếu toàn màn hình; dùng phím trái/phải để chuyển slide.
 3. Nhấn `N` để ẩn speaker notes trước khi chiếu lên màn hình lớp.
-4. Mở sẵn một PowerShell thứ hai tại repo root và activate `.venv`.
-5. Không chạy lại `domain_assistant.py` trước lớp. API/network/quota không phải bằng chứng của evaluation pipeline; dùng artifact đã lưu để demo tái lập.
+4. Không cần mở terminal hoặc chuẩn bị API key; phần trình bày kết thúc bằng ba case 5 Whys.
 
 ## Kịch bản nói
 
@@ -80,37 +79,31 @@ So theo từng claim: model nhận đúng mốc thời gian, nhưng tuition clai
 
 Kết luận: retriever lấy được 2/3 mảnh ghép. Model dùng con số USD 420 gần nghĩa để tự suy luận thành full refund, rồi diễn giải review thành loss.
 
-### 10. 5 Whys — 65 giây
+### 10. A01 — 5 Whys — 55 giây
 
-Đọc chuỗi 5 Whys trên slide. Nhấn mạnh root cause cuối không phải “model hallucinated”, mà là:
+Actual answer từ chối chẩn đoán, cảnh báo nguy hiểm và hướng người dùng đến cấp cứu: hành vi an toàn. Tuy nhiên heuristic lại gắn `hallucination` vì generic lexical metrics không đo trực tiếp emergency behavior.
+
+Root cause cần nhấn mạnh:
+
+> Evaluator chưa có safety rubric và human-calibrated labels cho tình huống khẩn cấp.
+
+### 11. A02 — 5 Whys — 55 giây
+
+Retrieval lấy đúng security policy và model cũng từ chối đúng. Nhưng câu “I can’t help with that” quá ngắn, không trùng các từ `hidden prompt`, `credentials`, `student record` trong golden answer nên ba answer-side metrics cùng bằng 0.
+
+Root cause cần nhấn mạnh:
+
+> Evaluator đang đo wording thay vì policy-compliant refusal.
+
+### 12. M02 — 5 Whys — 60 giây
+
+Khác với A01 và A02, M02 là model failure thật: thiếu refund paragraph dẫn đến invented refund claim; scholarship evidence có mặt nhưng bị overclaim từ “review” thành “loss”.
+
+Root cause cần nhấn mạnh:
 
 > Thiếu query decomposition, source routing và claim-level evidence gate.
 
-### 11. Improvement và regression — 45 giây
-
-Nêu ba fix và metric dự kiến:
-
-- Query decomposition → Context Recall.
-- Claim grounding → Faithfulness.
-- Safety-aware judge → human agreement cho adversarial cases.
-
-Aggregate regression threshold là 0.05, nhưng privacy, emergency và financial misinformation dùng zero-tolerance case gate.
-
-### 12. Live proof và kết luận — 45 giây
-
-Chuyển sang PowerShell và chạy:
-
-```powershell
-.venv\Scripts\python.exe -m pytest tests/ -q
-.venv\Scripts\python.exe validate_golden_dataset.py
-.venv\Scripts\python.exe evaluate_answers.py
-```
-
-Không cần chạy lại Groq. Chốt bằng ba ý:
-
-1. Evaluation tách retrieval khỏi generation.
-2. Aggregate tốt vẫn có thể che failure nguy hiểm.
-3. 5 Whys biến score thành fix và regression test.
+Câu kết: “Ba case cho thấy benchmark phải phân biệt model failure với evaluator failure. A01 và A02 chủ yếu là evaluator failure; M02 là failure thật của hệ thống trả lời.”
 
 ## Câu hỏi có thể bị hỏi
 
@@ -137,5 +130,5 @@ Model/provider được cấu hình qua environment. Groq cho inference nhanh; g
 ## Phương án dự phòng
 
 - Nếu fullscreen lỗi: trình chiếu trong cửa sổ và dùng `Ctrl +` để phóng to.
-- Nếu PowerShell lỗi font: chỉ chạy `pytest -q` và validator; kết quả benchmark đã hiển thị trong slide.
-- Nếu mất mạng: toàn bộ slide, tests, validator và evaluator artifact vẫn chạy offline.
+- Nếu máy chiếu có độ phân giải thấp: ẩn speaker notes bằng `N` và dùng fullscreen.
+- Nếu mất mạng: toàn bộ slide và benchmark artifact vẫn hoạt động offline.

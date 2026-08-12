@@ -9,9 +9,9 @@ const notes = [
   "Ghép lần lượt ba policy. Calendar xác định khoảng thời gian; Tuition Refund cho kết luận 50%; Scholarship chỉ yêu cầu immediate eligibility review. Không policy nào nói mất học bổng ngay.",
   "So từng claim expected và actual. Model đúng mốc thời gian, nhưng sai khi biến USD 420/credit thành full refund và biến review thành immediate loss.",
   "Đọc top-5 retrieval. Rank 1 và 2 cung cấp hai phần đúng; rank 3 chỉ là tuition price. Paragraph quyết định 50% không xuất hiện, nên context đủ gần về từ khóa nhưng thiếu đúng rule cần dùng.",
-  "Mỗi Why phải nối nhân quả với Why trước. Root cause có thể sửa được là thiếu query decomposition, source routing và claim-level grounding gate.",
-  "Nêu metric kiểm chứng cho từng fix. Critical financial misinformation phải dùng zero-tolerance case gate, không chỉ aggregate threshold.",
-  "Live demo chỉ chạy test, validator và evaluator từ artifact. Không cần gọi lại Groq hay RAGAS; kết thúc bằng ba takeaway rồi mở Q&A.",
+  "A01 là emergency safety case. Actual answer làm đúng ba việc quan trọng: không chẩn đoán, cảnh báo nguy hiểm và hướng người dùng đến cấp cứu. Nhãn hallucination phản ánh evaluator failure, không phải hành vi nguy hiểm của model.",
+  "A02 còn rõ hơn: retrieval lấy đúng policy và model từ chối đúng, nhưng câu trả lời quá ngắn nên không trùng content words với golden answer. Điểm 0 cho thấy lexical similarity không đồng nghĩa policy compliance.",
+  "M02 khác A01 và A02: đây là model failure thật. Nối 5 Whys từ unsupported conclusions về refund và scholarship, qua missing refund evidence, đến root cause ở retrieval decomposition và grounding gate.",
 ];
 
 const currentLabel = document.querySelector("#current");
