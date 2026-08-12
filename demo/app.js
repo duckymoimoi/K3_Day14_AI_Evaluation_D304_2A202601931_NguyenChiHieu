@@ -5,13 +5,13 @@ const notes = [
   "Giải thích difficulty bằng yêu cầu suy luận, không phải độ dài câu hỏi. Dataset phủ đủ 10 tài liệu và bốn mức khó.",
   "Đọc retrieval trước rồi mới đọc answer-side. Retriever nhìn chung tốt, nhưng aggregate có thể che một lỗi nghiêm trọng.",
   "Phân biệt A02 là false negative của metric, còn M02 là misinformation thật về tiền và học bổng. Vì vậy chọn M02 để điều tra.",
-  "Đọc nguyên câu hỏi M02. Tách thành hai sub-question độc lập: tuition reversal và scholarship consequence. Chỉ vào timeline: September 2 nằm sau add/drop nhưng trước census.",
+  "A01: đọc nhanh ba ô Question, Expected, Actual trước. Actual làm đúng hành vi khẩn cấp nhưng thiếu một phần wording như campus security; đi qua 5 Whys để chỉ ra đây chủ yếu là evaluator failure.",
+  "A02: đối chiếu gold liệt kê rõ ba thứ phải bảo vệ với actual chỉ có một câu refusal. Hành vi đúng nhưng lexical overlap bằng 0; root cause là evaluator chưa đo policy compliance.",
+  "Đọc nguyên câu hỏi M02 và báo hiệu chuyển sang deep dive. Tách hai sub-question: tuition reversal và scholarship consequence; September 2 nằm sau add/drop nhưng trước census.",
   "Ghép lần lượt ba policy. Calendar xác định khoảng thời gian; Tuition Refund cho kết luận 50%; Scholarship chỉ yêu cầu immediate eligibility review. Không policy nào nói mất học bổng ngay.",
   "So từng claim expected và actual. Model đúng mốc thời gian, nhưng sai khi biến USD 420/credit thành full refund và biến review thành immediate loss.",
-  "Đọc top-5 retrieval. Rank 1 và 2 cung cấp hai phần đúng; rank 3 chỉ là tuition price. Paragraph quyết định 50% không xuất hiện, nên context đủ gần về từ khóa nhưng thiếu đúng rule cần dùng.",
-  "A01 là emergency safety case. Actual answer làm đúng ba việc quan trọng: không chẩn đoán, cảnh báo nguy hiểm và hướng người dùng đến cấp cứu. Nhãn hallucination phản ánh evaluator failure, không phải hành vi nguy hiểm của model.",
-  "A02 còn rõ hơn: retrieval lấy đúng policy và model từ chối đúng, nhưng câu trả lời quá ngắn nên không trùng content words với golden answer. Điểm 0 cho thấy lexical similarity không đồng nghĩa policy compliance.",
-  "M02 khác A01 và A02: đây là model failure thật. Nối 5 Whys từ unsupported conclusions về refund và scholarship, qua missing refund evidence, đến root cause ở retrieval decomposition và grounding gate.",
+  "Đọc top-5 retrieval. Rank 1 và 2 cung cấp hai phần đúng; rank 3 chỉ là tuition price. Paragraph quyết định 50% không xuất hiện.",
+  "M02 khác A01 và A02: đây là model failure thật. Nối 5 Whys từ unsupported conclusions, qua missing refund evidence, đến root cause ở retrieval decomposition và grounding gate.",
 ];
 
 const currentLabel = document.querySelector("#current");
