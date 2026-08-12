@@ -1,7 +1,7 @@
 const slides = [...document.querySelectorAll(".slide")];
 const notes = [
   "Mở bằng outcome: đây không phải demo chatbot, mà là cách biết chatbot sai ở retrieval, generation hay evaluator. Pass rate 80% chưa đủ để kết luận hệ thống an toàn.",
-  "Đi từ trái sang phải. Nhấn mạnh system under evaluation và evaluation engine là hai phần khác nhau; artifact giúp chạy lại evaluator mà không gọi Groq.",
+  "Đi theo 6 bước. Corpus được paragraph-chunk; BM25 có source-repeat decay lấy top 5; GPT-OSS sinh answer đúng một lần; JSON đóng băng answer và ranked chunks. Từ artifact, evaluator tính lại 5 metrics mà không gọi Groq. Pass chỉ xét Faithfulness, Relevance, Completeness đều từ 0.5; Recall/Precision dùng chẩn đoán retrieval.",
   "Giải thích difficulty bằng yêu cầu suy luận, không phải độ dài câu hỏi. Dataset phủ đủ 10 tài liệu và bốn mức khó.",
   "Đọc retrieval trước rồi mới đọc answer-side. Retriever nhìn chung tốt, nhưng aggregate có thể che một lỗi nghiêm trọng.",
   "Phân biệt A02 là false negative của metric, còn M02 là misinformation thật về tiền và học bổng. Vì vậy chọn M02 để điều tra.",

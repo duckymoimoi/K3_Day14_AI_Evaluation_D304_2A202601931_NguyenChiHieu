@@ -15,15 +15,22 @@
 
 Nêu headline: 20 cases, 5 metrics, pass rate 80%.
 
-### 2. Pipeline — 45 giây
+### 2. Pipeline kỹ thuật — 45 giây
 
-Đi từ corpus đến golden dataset, DomainAssistant, actual-answer artifact, evaluation core và failure analysis.
+Đi lần lượt sáu bước:
+
+1. Mười Markdown policies được tách theo paragraph, mỗi chunk giữ `doc_id`, `chunk_id`, title và text.
+2. Golden set chứa question, expected answer và gold contexts; chỉ dùng ở evaluation side.
+3. Retriever tokenize question, chấm BM25, giảm điểm source lặp và lấy top 5 chunks.
+4. Prompt gồm system rules, question và retrieved contexts được gửi tới GPT-OSS 120B qua Groq.
+5. Answer, chunk ID, source, text và retrieval score được đóng băng trong `actual_answers.json`.
+6. Offline evaluator đọc artifact để tính Faithfulness, Relevance, Completeness, Context Recall và Context Precision.
 
 Điểm bắt buộc phải nói:
 
 - DomainAssistant không đọc expected answer hoặc gold evidence.
-- `actual_answers.json` lưu answer và ranked retrieval chunks.
-- Evaluator có thể chạy lại từ artifact mà không gọi LLM.
+- Pass yêu cầu cả Faithfulness, Relevance và Completeness đều `≥ 0.5`; retrieval metrics không tham gia pass rule.
+- Evaluator có thể replay từ artifact mà không gọi lại LLM, nên kết quả tái lập và không tốn quota.
 
 ### 3. Golden dataset — 40 giây
 

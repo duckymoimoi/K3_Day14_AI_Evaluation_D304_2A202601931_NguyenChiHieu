@@ -35,17 +35,16 @@
 
         <section class="slide" data-title="Pipeline" data-time="0:35–1:20">
           <p class="kicker">01 · End-to-end pipeline</p>
-          <h2>Ba thành phần, ba vai trò tách biệt</h2>
-          <p class="lead">Không để system under evaluation nhìn thấy đáp án chuẩn; evaluation chạy trên artifact đã lưu để kết quả có thể lặp lại.</p>
-          <div class="pipeline">
-            <article><i>1</i><strong>Corpus</strong><span>10 policy documents</span></article>
-            <article><i>2</i><strong>Golden dataset</strong><span>question + expected + evidence</span></article>
-            <article><i>3</i><strong>Domain Assistant</strong><span>BM25 top-k 5 → GPT-OSS 120B</span></article>
-            <article><i>4</i><strong>Actual answers</strong><span>20 answers + ranked chunks</span></article>
-            <article><i>5</i><strong>Evaluation core</strong><span>5 metrics + pass/failure</span></article>
-            <article><i>6</i><strong>Analysis</strong><span>benchmark → 5 Whys → regression</span></article>
+          <h2>Technical data flow: generate một lần, evaluate nhiều lần</h2>
+          <div class="tech-pipeline">
+            <article><i>1</i><div><header>Ingest &amp; chunk</header><strong>10 Markdown policies → paragraph chunks</strong><code>doc_id · chunk_id · title · text</code></div></article>
+            <article><i>2</i><div><header>Build gold set</header><strong>20 QA · 4 difficulty levels</strong><code>question · expected_answer · gold contexts</code></div></article>
+            <article class="system-stage"><i>3</i><div><header>Retrieve</header><strong>Tokenize → BM25 → source decay → top_k=5</strong><code>question → ranked chunks + score</code></div></article>
+            <article class="system-stage"><i>4</i><div><header>Generate · Groq</header><strong>System rules + question + retrieved context</strong><code>GPT-OSS 120B → actual_answer</code></div></article>
+            <article class="artifact-stage"><i>5</i><div><header>Freeze artifact</header><strong>Persist answer và retrieval trace</strong><code>actual_answers.json · no second LLM call</code></div></article>
+            <article class="eval-stage"><i>6</i><div><header>Offline evaluate</header><strong>Token metrics → threshold → failure heuristic</strong><code>F · R · C ≥ 0.5; + Recall/Precision → report</code></div></article>
           </div>
-          <div class="callout"><strong>Data-leakage guard</strong><span>DomainAssistant chỉ đọc ID và question, không đọc expected answer hoặc gold contexts.</span></div>
+          <div class="pipeline-legend"><span><b>System under evaluation</b> bước 3–4</span><span><b>Replay boundary</b> bước 5</span><span><b>Evaluation engine</b> bước 6</span><strong>Leakage guard: generator chỉ nhận question, không nhận expected/gold.</strong></div>
         </section>
 
         <section class="slide" data-title="Dataset" data-time="1:20–2:00">
