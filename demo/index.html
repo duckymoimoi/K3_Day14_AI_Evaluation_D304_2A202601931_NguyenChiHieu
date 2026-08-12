@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07111f" />
+    <title>AI Evaluation Lab · Demo Deck</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="deck" id="deck" aria-label="AI Evaluation demo slides">
+      <header class="deck-header">
+        <div class="brand"><span class="brand-mark">E</span><span>EvalScope</span></div>
+        <div class="header-meta">
+          <span class="runtime"><i></i> Groq · GPT-OSS 120B</span>
+          <span class="counter"><b id="current">01</b> / <span id="total">09</span></span>
+        </div>
+      </header>
+
+      <div class="slides" id="slides" aria-live="polite">
+        <section class="slide title-slide" data-title="Mở đầu" data-time="0:00–0:35">
+          <div class="title-copy">
+            <p class="kicker">Day 14 · AI Evaluation &amp; Benchmarking</p>
+            <h1>Đo để biết hệ thống<br /><em>sai ở đâu</em>, không chỉ đúng bao nhiêu</h1>
+            <p class="lead">Pipeline đánh giá một RAG assistant cho Northstar University trên 20 tình huống có ground truth, retrieval trace và failure analysis.</p>
+            <div class="title-tags">
+              <span>20 golden cases</span><span>5 metrics</span><span>5 Whys</span><span>Regression gate</span>
+            </div>
+          </div>
+          <div class="hero-score" aria-label="Benchmark pass rate">
+            <div class="score-ring"><strong>80%</strong><span>pass rate</span></div>
+            <p>16 / 20 cases passed</p>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Pipeline" data-time="0:35–1:20">
+          <p class="kicker">01 · End-to-end pipeline</p>
+          <h2>Ba thành phần, ba vai trò tách biệt</h2>
+          <p class="lead">Không để system under evaluation nhìn thấy đáp án chuẩn; evaluation chạy trên artifact đã lưu để kết quả có thể lặp lại.</p>
+          <div class="pipeline">
+            <article><i>1</i><strong>Corpus</strong><span>10 policy documents</span></article>
+            <article><i>2</i><strong>Golden dataset</strong><span>question + expected + evidence</span></article>
+            <article><i>3</i><strong>Domain Assistant</strong><span>BM25 top-k 5 → GPT-OSS 120B</span></article>
+            <article><i>4</i><strong>Actual answers</strong><span>20 answers + ranked chunks</span></article>
+            <article><i>5</i><strong>Evaluation core</strong><span>5 metrics + pass/failure</span></article>
+            <article><i>6</i><strong>Analysis</strong><span>benchmark → 5 Whys → regression</span></article>
+          </div>
+          <div class="callout"><strong>Data-leakage guard</strong><span>DomainAssistant chỉ đọc ID và question, không đọc expected answer hoặc gold contexts.</span></div>
+        </section>
+
+        <section class="slide" data-title="Dataset" data-time="1:20–2:00">
+          <p class="kicker">02 · Golden dataset design</p>
+          <h2>Độ khó được thiết kế theo bản chất reasoning</h2>
+          <p class="lead">Mỗi claim trong expected answer có evidence nguyên văn; toàn bộ 10 tài liệu được phủ ít nhất một lần.</p>
+          <div class="difficulty-grid">
+            <article class="easy"><b>5</b><strong>Easy</strong><span>Factual lookup: date, fee, credit load</span></article>
+            <article class="medium"><b>7</b><strong>Medium</strong><span>Process hoặc kết hợp 2–3 policy</span></article>
+            <article class="hard"><b>5</b><strong>Hard</strong><span>Exception, version, effective date</span></article>
+            <article class="adversarial"><b>3</b><strong>Adversarial</strong><span>Out-of-scope, injection, false premise</span></article>
+          </div>
+          <div class="evidence-strip">
+            <div><span>Schema</span><strong>20 / 20</strong></div>
+            <div><span>Distribution</span><strong>5 · 7 · 5 · 3</strong></div>
+            <div><span>Document coverage</span><strong>10 / 10</strong></div>
+            <div><span>Validator</span><strong class="good">PASS</strong></div>
+          </div>
+        </section>
+
+        <section class="slide results-slide" data-title="Kết quả" data-time="2:00–2:55">
+          <p class="kicker">03 · Benchmark results</p>
+          <h2>Retrieval mạnh hơn generation</h2>
+          <p class="lead">Hai retrieval metrics đều trên 0.90, trong khi relevance và faithfulness chỉ ở vùng “Needs work”.</p>
+          <div class="results-layout">
+            <div class="metric-bars">
+              <div class="metric"><label><span>Context Precision</span><b>0.964</b></label><div><i style="--value:96.4%"></i></div></div>
+              <div class="metric"><label><span>Context Recall</span><b>0.909</b></label><div><i style="--value:90.9%"></i></div></div>
+              <div class="metric warn"><label><span>Completeness</span><b>0.751</b></label><div><i style="--value:75.1%"></i></div></div>
+              <div class="metric warn"><label><span>Faithfulness</span><b>0.683</b></label><div><i style="--value:68.3%"></i></div></div>
+              <div class="metric warn"><label><span>Relevance</span><b>0.655</b></label><div><i style="--value:65.5%"></i></div></div>
+            </div>
+            <div class="result-summary">
+              <div class="big-stat"><strong>16</strong><span>passed</span></div>
+              <div class="big-stat danger"><strong>4</strong><span>failed</span></div>
+              <div class="failure-mix"><span><i class="red"></i>2 hallucination</span><span><i class="amber"></i>2 off_topic</span></div>
+            </div>
+          </div>
+          <div class="callout conclusion"><strong>Kết luận chẩn đoán</strong><span>Bottleneck chính nằm ở generation/evaluation; riêng M02 là lỗi kết hợp retrieval + generation.</span></div>
+        </section>
+
+        <section class="slide" data-title="Failure map" data-time="2:55–3:30">
+          <p class="kicker">04 · Failure map</p>
+          <h2>Không phải score thấp nào cũng là cùng một loại lỗi</h2>
+          <div class="failure-table-wrap">
+            <table class="failure-table">
+              <thead><tr><th>Case</th><th>Overall</th><th>Quan sát</th><th>Chẩn đoán</th></tr></thead>
+              <tbody>
+                <tr><td><b>A02</b><small>Prompt injection</small></td><td class="score bad">0.000</td><td>Refusal đúng nhưng quá ngắn</td><td><span class="chip purple">Evaluator mismatch</span></td></tr>
+                <tr><td><b>A01</b><small>Emergency trap</small></td><td class="score bad">0.322</td><td>Safe action, thiếu campus security</td><td><span class="chip purple">Mixed</span></td></tr>
+                <tr><td><b>M02</b><small>Refund + scholarship</small></td><td class="score bad">0.581</td><td>Bịa full refund và mất scholarship</td><td><span class="chip red-chip">Real misinformation</span></td></tr>
+                <tr><td><b>A03</b><small>Privacy false premise</small></td><td class="score bad">0.688</td><td>Đúng policy, question overlap thấp</td><td><span class="chip purple">Metric boundary</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout"><strong>Case chọn cho 5 Whys: M02</strong><span>Đây là failure có tác động thật đến tài chính và học bổng, không chỉ là false negative của evaluator.</span></div>
+        </section>
+
+        <section class="slide trace-slide" data-title="M02 trace" data-time="3:30–4:35">
+          <p class="kicker">05 · M02 evidence trace</p>
+          <h2>Một paragraph bị thiếu dẫn đến hai kết luận sai</h2>
+          <p class="question">“Drop môn ngày 02/09 và xuống dưới 12 credits: tuition reversal và scholarship consequence là gì?”</p>
+          <div class="trace-grid">
+            <article class="trace-card expected">
+              <span class="trace-label">Expected</span>
+              <p><mark>50%</mark> tuition reversed · Immediate <mark>eligibility review</mark></p>
+              <small>Evidence cần: calendar + refund window + scholarship review</small>
+            </article>
+            <article class="trace-card actual">
+              <span class="trace-label">Actual</span>
+              <p><del>Full USD 420 refunded</del> · <del>Scholarship lost immediately</del></p>
+              <small>Hai material claims không được evidence hỗ trợ</small>
+            </article>
+          </div>
+          <div class="ranked-trace">
+            <div class="rank ok"><b>#1</b><span>Calendar</span><small>Đúng August 28 / September 4</small></div>
+            <div class="rank ok"><b>#2</b><span>Scholarship</span><small>Đúng: immediate eligibility review</small></div>
+            <div class="rank partial"><b>#3</b><span>Tuition price</span><small>USD 420/credit, nhưng không có refund rule</small></div>
+            <div class="rank missing"><b>Ø</b><span>Refund paragraph</span><small>50% reversal bị thiếu khỏi top-k</small></div>
+          </div>
+          <div class="score-line"><span>Ctx Recall <b>0.808</b></span><span>Faithfulness <b>0.489</b></span><span>Overall <b>0.581</b></span></div>
+        </section>
+
+        <section class="slide whys-slide" data-title="5 Whys" data-time="4:35–5:45">
+          <p class="kicker">06 · Root cause analysis</p>
+          <h2>M02 qua 5 Whys</h2>
+          <div class="whys">
+            <article><b>1</b><div><strong>Vì sao answer sai?</strong><span>Model kết luận full refund và mất scholarship ngay.</span></div></article>
+            <article><b>2</b><div><strong>Vì sao model suy luận như vậy?</strong><span>Refund rule bị thiếu; “eligibility review” bị diễn giải quá mức.</span></div></article>
+            <article><b>3</b><div><strong>Vì sao evidence bị thiếu?</strong><span>BM25 ưu tiên calendar, scholarship và tuition price hơn refund window.</span></div></article>
+            <article><b>4</b><div><strong>Vì sao retrieval không đủ?</strong><span>Một lexical query phải đồng thời giải ba sub-intents.</span></div></article>
+            <article class="root"><b>5</b><div><strong>Root cause hành động được</strong><span>Thiếu query decomposition, source routing và claim-level evidence gate.</span></div></article>
+          </div>
+        </section>
+
+        <section class="slide" data-title="Cải tiến" data-time="5:45–6:30">
+          <p class="kicker">07 · Improve &amp; regress</p>
+          <h2>Fix theo root cause, rồi khóa bằng regression gate</h2>
+          <div class="improvement-grid">
+            <article><span>01</span><strong>Decompose query</strong><p>Tách calendar, refund và scholarship; merge candidates với source diversity.</p><em>↑ Context Recall</em></article>
+            <article><span>02</span><strong>Ground every claim</strong><p>Không cho trả amount, date hoặc eligibility decision nếu thiếu evidence.</p><em>↑ Faithfulness</em></article>
+            <article><span>03</span><strong>Safety-aware judge</strong><p>Calibrate safe refusals để A01/A02 không bị lexical metric phạt sai.</p><em>↑ Human agreement</em></article>
+          </div>
+          <div class="gate-flow"><span>Change</span><i>→</i><span>Offline eval</span><i>→</i><span>Regression ≤ 0.05</span><i>→</i><span>Critical-case gate</span><i>→</i><strong>Deploy</strong></div>
+        </section>
+
+        <section class="slide closing-slide" data-title="Live proof" data-time="6:30–7:20">
+          <p class="kicker">08 · Live proof &amp; takeaway</p>
+          <h2>Demo artifact, không đánh cược vào live API</h2>
+          <div class="closing-grid">
+            <div class="terminal" aria-label="Live demo commands">
+              <div class="terminal-head"><i></i><i></i><i></i><span>PowerShell · repo root</span></div>
+              <code><b>&gt;</b> .venv\Scripts\python.exe -m pytest tests/ -q<br /><span>42 passed</span><br /><br /><b>&gt;</b> .venv\Scripts\python.exe validate_golden_dataset.py<br /><span>PASS · 20 cases · 10/10 docs</span><br /><br /><b>&gt;</b> .venv\Scripts\python.exe evaluate_answers.py<br /><span>80.0% pass · results reproducible</span></code>
+            </div>
+            <div class="takeaways">
+              <article><b>1</b><span>Evaluation tách retrieval khỏi generation.</span></article>
+              <article><b>2</b><span>Aggregate tốt vẫn có thể che một failure nguy hiểm.</span></article>
+              <article><b>3</b><span>5 Whys biến score thành fix có thể kiểm chứng.</span></article>
+            </div>
+          </div>
+          <p class="final-line">Reliable AI = benchmark có chủ đích + trace có thể kiểm toán + regression gate.</p>
+        </section>
+      </div>
+
+      <footer class="deck-footer">
+        <div class="progress"><i id="progress"></i></div>
+        <div class="slide-title" id="slide-title">Mở đầu</div>
+        <div class="controls">
+          <button id="notes-toggle" title="Ẩn/hiện speaker notes (N)">N</button>
+          <button id="fullscreen" title="Toàn màn hình (F)">⛶</button>
+          <button id="prev" aria-label="Slide trước">←</button>
+          <button id="next" aria-label="Slide sau">→</button>
+        </div>
+      </footer>
+    </main>
+
+    <aside class="speaker-note" id="speaker-note" aria-live="polite">
+      <div><strong>Speaker note</strong><span id="slide-time">0:00–0:35</span></div>
+      <p id="note-text"></p>
+    </aside>
+
+    <div class="help" id="help">
+      <span><kbd>←</kbd><kbd>→</kbd> chuyển slide</span><span><kbd>F</kbd> fullscreen</span><span><kbd>N</kbd> notes</span><span><kbd>H</kbd> help</span>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
