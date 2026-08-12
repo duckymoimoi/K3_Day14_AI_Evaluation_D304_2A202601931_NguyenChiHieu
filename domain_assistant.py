@@ -21,9 +21,13 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from dotenv import load_dotenv
-from openai import OpenAI, OpenAIError
+from openai import APIStatusError, OpenAI, OpenAIError, RateLimitError
 
-load_dotenv(Path(__file__).resolve().with_name(".env"))
+MODULE_DIR = Path(__file__).resolve().parent
+load_dotenv(MODULE_DIR / ".env")
+# Local development convenience: reuse secrets from the workspace-level .env
+# without copying them into the repository. Existing process/local values win.
+load_dotenv(MODULE_DIR.parent / ".env", override=False)
 
 TOKEN_RE = re.compile(r"[a-z0-9]+")
 HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+")
@@ -242,28 +246,156 @@ class TextGenerator(Protocol):
     def generate(self, prompt: str) -> str: ...
 
 
+def _numbered_env_values(prefix: str) -> list[str]:
+    """Return PREFIX, PREFIX_2, ... in numeric order, without duplicates."""
+
+    pattern = re.compile(rf"^{re.escape(prefix)}(?:_(\d+))?$")
+    configured: list[tuple[int, str]] = []
+    for name, raw_value in os.environ.items():
+        match = pattern.match(name)
+        value = raw_value.strip()
+        if match and value:
+            configured.append((int(match.group(1) or 1), value))
+
+    values: list[str] = []
+    for _, value in sorted(configured):
+        if value not in values:
+            values.append(value)
+    return values
+
+
+def _retry_after_seconds(exc: APIStatusError, default: float = 10.0) -> float:
+    """Read Groq/OpenAI retry-after defensively and keep waits bounded."""
+
+    response = getattr(exc, "response", None)
+    headers = getattr(response, "headers", {})
+    raw_value = headers.get("retry-after") if headers is not None else None
+    try:
+        return min(60.0, max(0.0, float(raw_value)))
+    except (TypeError, ValueError):
+        return default
+
+
 class OpenAIGenerator:
-    def __init__(self, max_output_tokens: int = 300) -> None:
-        api_key = os.getenv("OPENAI_API_KEY", "").strip()
-        self.model = os.getenv("OPENAI_MODEL", "").strip()
-        if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is missing from .env")
+    """Provider-neutral generator using an OpenAI-compatible Responses API.
+
+    Configuration is environment-driven. Multiple numbered keys are used in
+    round-robin order, and a key that returns HTTP 429 is cooled down while the
+    remaining keys are tried. Key values are never included in logs/errors.
+    """
+
+    def __init__(self, max_output_tokens: int = 600) -> None:
+        configured_provider = os.getenv("LLM_PROVIDER", "").strip().lower()
+        if configured_provider:
+            self.provider = configured_provider
+        elif _numbered_env_values("GROQ_API_KEY"):
+            self.provider = "groq"
+        else:
+            self.provider = "openai"
+
+        provider_prefix = self.provider.upper().replace("-", "_")
+        keys = _numbered_env_values("LLM_API_KEY")
+        if not keys:
+            keys = _numbered_env_values(f"{provider_prefix}_API_KEY")
+
+        self.model = (
+            os.getenv("LLM_MODEL", "").strip()
+            or os.getenv(f"{provider_prefix}_MODEL", "").strip()
+        )
+        self.base_url = (
+            os.getenv("LLM_BASE_URL", "").strip()
+            or os.getenv(f"{provider_prefix}_BASE_URL", "").strip()
+            or None
+        )
+        if not keys:
+            raise RuntimeError(
+                f"No API key configured for provider {self.provider!r}; set "
+                f"{provider_prefix}_API_KEY (and optional numbered variants)"
+            )
         if not self.model:
-            raise RuntimeError("OPENAI_MODEL is missing from .env")
-        self.client = OpenAI(api_key=api_key)
-        self.max_output_tokens = max_output_tokens
+            raise RuntimeError(
+                f"No model configured for provider {self.provider!r}; set "
+                "LLM_MODEL or the provider-specific MODEL variable"
+            )
+
+        self.clients = [
+            OpenAI(api_key=api_key, base_url=self.base_url)
+            for api_key in keys
+        ]
+        self.key_count = len(self.clients)
+        configured_max_tokens = os.getenv("LLM_MAX_OUTPUT_TOKENS", "").strip()
+        try:
+            self.max_output_tokens = (
+                int(configured_max_tokens) if configured_max_tokens else max_output_tokens
+            )
+        except ValueError as exc:
+            raise RuntimeError("LLM_MAX_OUTPUT_TOKENS must be an integer") from exc
+        self.reasoning_effort = os.getenv("LLM_REASONING_EFFORT", "low").strip()
+        self._next_client = 0
+        self._cooldown_until = [0.0] * self.key_count
+
+    def _available_client(self) -> int | None:
+        now = time.monotonic()
+        for offset in range(self.key_count):
+            index = (self._next_client + offset) % self.key_count
+            if self._cooldown_until[index] <= now:
+                return index
+        return None
 
     def generate(self, prompt: str) -> str:
-        response = self.client.responses.create(
-            model=self.model,
-            input=prompt,
-            temperature=0,
-            max_output_tokens=self.max_output_tokens,
+        attempted: set[int] = set()
+        last_error: Exception | None = None
+
+        while len(attempted) < self.key_count:
+            index = self._available_client()
+            if index is None:
+                break
+            if index in attempted:
+                self._next_client = (index + 1) % self.key_count
+                continue
+            attempted.add(index)
+
+            try:
+                response = self.clients[index].responses.create(
+                    model=self.model,
+                    input=prompt,
+                    temperature=0,
+                    max_output_tokens=self.max_output_tokens,
+                    reasoning={"effort": self.reasoning_effort},
+                )
+                answer = response.output_text.strip()
+                if not answer:
+                    last_error = RuntimeError(
+                        f"{self.provider} returned an empty answer"
+                    )
+                    self._cooldown_until[index] = time.monotonic() + 1.0
+                    self._next_client = (index + 1) % self.key_count
+                    continue
+                self._next_client = (index + 1) % self.key_count
+                return answer
+            except RateLimitError as exc:
+                last_error = exc
+                self._cooldown_until[index] = (
+                    time.monotonic() + _retry_after_seconds(exc)
+                )
+                self._next_client = (index + 1) % self.key_count
+            except APIStatusError as exc:
+                last_error = exc
+                if exc.status_code in {401, 403}:
+                    self._cooldown_until[index] = float("inf")
+                    self._next_client = (index + 1) % self.key_count
+                    continue
+                if exc.status_code in {500, 502, 503, 504}:
+                    self._cooldown_until[index] = time.monotonic() + 2.0
+                    self._next_client = (index + 1) % self.key_count
+                    continue
+                raise
+
+        message = (
+            f"All {self.key_count} configured {self.provider} API key(s) are "
+            "rate-limited, unavailable, or invalid"
         )
-        answer = response.output_text.strip()
-        if not answer:
-            raise RuntimeError("OpenAI returned an empty answer")
-        return answer
+        raise RuntimeError(message) from last_error
 
 
 @dataclass(frozen=True)
@@ -458,6 +590,7 @@ def generate_actual_answers(
         "generated_at": datetime.now(UTC).isoformat(),
         "agent": {
             "name": "domain-assistant",
+            "provider": getattr(assistant.generator, "provider", "custom"),
             "model": model,
             "top_k": top_k,
             "prompt_version": "1.0",
